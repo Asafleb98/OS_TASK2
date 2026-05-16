@@ -111,14 +111,14 @@ uint lcg_rand(void) {
   return result;
 }
 
+void lcg_init(void) {
+  initlock(&random_lock, "random_lock");
+}
 
 //rappers for the randum functions
 uint64 sys_lcg_srand(void) {
   int seed;
-  // get the first argument
-  if(argint(0, &seed) < 0)
-    return -1;
-    
+  argint(0, &seed);      // שולפים את הזרע (הפונקציה לא מחזירה ערך)
   lcg_srand((uint)seed); 
   return 0;
 }
