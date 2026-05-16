@@ -6,6 +6,11 @@
 #include "spinlock.h"
 #include "proc.h"
 
+//MY_NOTE -  Task 0: Pseudo-Random Number Generator (PRNG) state and lock
+static uint random_state = 1;
+struct spinlock random_lock;
+
+
 uint64
 sys_exit(void)
 {
@@ -88,4 +93,36 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+
+//MY_NOTE - new function for generating the random number
+void lcg_srand(uint seed) {
+  acquire(&random_lock);
+  random_state = seed;
+  release(&random_lock);
+}
+
+uint lcg_rand(void) {
+  acquire(&random_lock);
+  // Parameters for the LCG: a = 1664525, b = 1013904223
+  random_state = 1664525 * random_state + 1013904223;
+  uint result = random_state;
+  release(&random_lock);
+  return result;
+}
+
+
+//rappers for the randum functions
+uint64 sys_lcg_srand(void) {
+  int seed;
+  // get the first argument
+  if(argint(0, &seed) < 0)
+    return -1;
+    
+  lcg_srand((uint)seed); 
+  return 0;
+}
+
+uint64 sys_lcg_rand(void) {
+  return lcg_rand(); 
 }

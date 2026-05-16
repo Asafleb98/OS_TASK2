@@ -101,6 +101,9 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_link(void);
 extern uint64 sys_mkdir(void);
 extern uint64 sys_close(void);
+//new system calls
+extern uint64 sys_lcg_srand(void);
+extern uint64 sys_lcg_rand(void);
 
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
@@ -126,6 +129,9 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+//new system calls
+[SYS_lcg_srand]   sys_lcg_srand,
+[SYS_lcg_rand]    sys_lcg_rand,
 };
 
 void
