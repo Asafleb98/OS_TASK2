@@ -32,6 +32,9 @@ int israeli_create(int favoritism);
 int israeli_destroy(int lock_id);
 int israeli_acquire(int lock_id);
 int israeli_release(int lock_id);
+//Task 2 - new syscall
+int inc_score(int team_id);
+int get_score(int team_id);
 
 // ulib.c
 int stat(const char*, struct stat*);

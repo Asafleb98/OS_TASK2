@@ -288,3 +288,41 @@ uint64 sys_israeli_release(void) {
   return 0;
 }
 
+// Task 2: Team Scores for Relay Race
+#define NUM_TEAMS 10
+int team_scores[NUM_TEAMS];
+struct spinlock scores_lock;
+
+// פונקציית אתחול - נקרא לה בעליית המערכת
+void scores_init(void) {
+  initlock(&scores_lock, "scores_lock");
+  for(int i = 0; i < NUM_TEAMS; i++) {
+    team_scores[i] = 0;
+  }
+}
+
+uint64 sys_inc_score(void) {
+  int team_id;
+  argint(0, &team_id);
+  
+  if(team_id < 0 || team_id >= NUM_TEAMS) return -1;
+  
+  acquire(&scores_lock);
+  team_scores[team_id]++;
+  release(&scores_lock);
+  
+  return 0;
+}
+
+uint64 sys_get_score(void) {
+  int team_id;
+  argint(0, &team_id);
+  
+  if(team_id < 0 || team_id >= NUM_TEAMS) return -1;
+  
+  acquire(&scores_lock);
+  int score = team_scores[team_id];
+  release(&scores_lock);
+  
+  return score;
+}
