@@ -122,6 +122,7 @@ allocproc(void)
   return 0;
 
 found:
+  p->gid = 0; // Task 0 - Initialize Group ID
   p->pid = allocpid();
   p->state = USED;
 

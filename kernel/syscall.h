@@ -20,6 +20,13 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
-//new system calls
+//Task 2 - new system calls
 #define SYS_lcg_srand  22
 #define SYS_lcg_rand   23
+//Taks 1 - new system calls
+#define SYS_setgid 24
+#define SYS_getgid 25
+#define SYS_israeli_create 26
+#define SYS_israeli_destroy 27
+#define SYS_israeli_acquire 28
+#define SYS_israeli_release 29

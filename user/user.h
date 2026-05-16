@@ -22,9 +22,16 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
-//our new calls
+//Task 0 - new syscall
 void lcg_srand(uint seed);
 uint lcg_rand(void);
+//Task 1 - new syscall
+void setgid(int gid);
+int getgid(void);
+int israeli_create(int favoritism);
+int israeli_destroy(int lock_id);
+int israeli_acquire(int lock_id);
+int israeli_release(int lock_id);
 
 // ulib.c
 int stat(const char*, struct stat*);
