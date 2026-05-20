@@ -111,6 +111,7 @@ extern uint64 sys_israeli_release(void);
 extern uint64 sys_inc_score(void);
 extern uint64 sys_get_score(void);
 extern uint64 sys_get_leading_score(void);
+extern uint64 sys_scores_nullify(void);
 
 // An array mapping syscall numbers from syscall.h
 // to the function that handles the system call.
@@ -151,6 +152,7 @@ static uint64 (*syscalls[])(void) = {
     [SYS_inc_score] sys_inc_score,
     [SYS_get_score] sys_get_score,
     [SYS_get_leading_score] sys_get_leading_score,
+    [SYS_scores_nullify] sys_scores_nullify,
 };
 
 void syscall(void)

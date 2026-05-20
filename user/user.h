@@ -36,6 +36,7 @@ int israeli_release(int lock_id);
 int inc_score(int team_id);
 int get_score(int team_id);
 int get_leading_score(void);
+int scores_nullify(void);
 
 // ulib.c
 int stat(const char *, struct stat *);

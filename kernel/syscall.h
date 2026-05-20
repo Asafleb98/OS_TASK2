@@ -34,3 +34,4 @@
 #define SYS_inc_score 30
 #define SYS_get_score 31
 #define SYS_get_leading_score 32
+#define SYS_scores_nullify 33

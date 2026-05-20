@@ -335,6 +335,17 @@ void scores_init(void)
   leading_score = 0;
 }
 
+void sys_scores_nullify(void)
+{
+  acquire(&scores_lock);
+  for (int i = 0; i < NUM_TEAMS; i++)
+  {
+    team_scores[i] = 0;
+  }
+  leading_score = 0;
+  release(&scores_lock);
+}
+
 uint64 sys_inc_score(void)
 {
   int team_id;

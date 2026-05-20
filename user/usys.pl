@@ -47,3 +47,4 @@ entry("israeli_release");
 entry("inc_score");
 entry("get_score");
 entry("get_leading_score");
+entry("scores_nullify");

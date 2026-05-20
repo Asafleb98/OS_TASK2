@@ -8,6 +8,7 @@
 
 int main(int argc, char *argv[])
 {
+  scores_nullify();
   // אם העברנו את ה-favoritism כארגומנט, נשתמש בו, אחרת ברירת המחדל היא 50
   int favoritism = 50;
   if (argc > 1)
