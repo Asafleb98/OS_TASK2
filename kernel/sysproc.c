@@ -6,7 +6,7 @@
 #include "spinlock.h"
 #include "proc.h"
 
-//MY_NOTE -  Task 0: Pseudo-Random Number Generator (PRNG) state and lock
+// MY_NOTE -  Task 0: Pseudo-Random Number Generator (PRNG) state and lock
 static uint random_state = 1;
 struct spinlock random_lock;
 
@@ -14,7 +14,8 @@ struct spinlock random_lock;
 #define MAX_ILOCKS 15
 #define MAX_QUEUE 16
 
-struct israeli_lock {
+struct israeli_lock
+{
   int active;               // 0 if free, 1 if created and in use
   int favoritism;           // Favoritism coefficient (0-100)
   int locked;               // 0 if available, 1 if currently held
@@ -27,8 +28,7 @@ struct israeli_lock {
 
 static struct israeli_lock israeli_locks[MAX_ILOCKS]; // Global array of 15 locks
 
-//end of my NOTE
-
+// end of my NOTE
 
 uint64
 sys_exit(void)
@@ -36,7 +36,7 @@ sys_exit(void)
   int n;
   argint(0, &n);
   exit(n);
-  return 0;  // not reached
+  return 0; // not reached
 }
 
 uint64
@@ -67,7 +67,7 @@ sys_sbrk(void)
 
   argint(0, &n);
   addr = myproc()->sz;
-  if(growproc(n) < 0)
+  if (growproc(n) < 0)
     return -1;
   return addr;
 }
@@ -81,8 +81,10 @@ sys_sleep(void)
   argint(0, &n);
   acquire(&tickslock);
   ticks0 = ticks;
-  while(ticks - ticks0 < n){
-    if(killed(myproc())){
+  while (ticks - ticks0 < n)
+  {
+    if (killed(myproc()))
+    {
       release(&tickslock);
       return -1;
     }
@@ -114,14 +116,16 @@ sys_uptime(void)
   return xticks;
 }
 
-//MY_NOTE - new function for generating the random number
-void lcg_srand(uint seed) {
+// MY_NOTE - new function for generating the random number
+void lcg_srand(uint seed)
+{
   acquire(&random_lock);
   random_state = seed;
   release(&random_lock);
 }
 
-uint lcg_rand(void) {
+uint lcg_rand(void)
+{
   acquire(&random_lock);
   // Parameters for the LCG: a = 1664525, b = 1013904223
   random_state = 1664525 * random_state + 1013904223;
@@ -130,44 +134,52 @@ uint lcg_rand(void) {
   return result;
 }
 
-void lcg_init(void) {
+void lcg_init(void)
+{
   initlock(&random_lock, "random_lock");
 }
 
-//rappers for the randum functions
-uint64 sys_lcg_srand(void) {
+// rappers for the randum functions
+uint64 sys_lcg_srand(void)
+{
   int seed;
-  argint(0, &seed);      // שולפים את הזרע (הפונקציה לא מחזירה ערך)
-  lcg_srand((uint)seed); 
+  argint(0, &seed); // שולפים את הזרע (הפונקציה לא מחזירה ערך)
+  lcg_srand((uint)seed);
   return 0;
 }
 
-uint64 sys_lcg_rand(void) {
-  return lcg_rand(); 
+uint64 sys_lcg_rand(void)
+{
+  return lcg_rand();
 }
 
-//Taks 1
-uint64 sys_setgid(void) {
+// Taks 1
+uint64 sys_setgid(void)
+{
   int gid;
   argint(0, &gid); // שולפים את הערך
-  myproc()->gid = gid; 
+  myproc()->gid = gid;
   return 0;
 }
 
-uint64 sys_getgid(void) {
+uint64 sys_getgid(void)
+{
   return myproc()->gid;
 }
 
-uint64 sys_israeli_create(void) {
+uint64 sys_israeli_create(void)
+{
   int favoritism;
   argint(0, &favoritism);
-  
-  if(favoritism < 0 || favoritism > 100)
+
+  if (favoritism < 0 || favoritism > 100)
     return -1; // החזרת שגיאה אם הערך לא חוקי
 
   // חיפוש מנעול פנוי במערך
-  for(int i = 0; i < MAX_ILOCKS; i++) {
-    if(__sync_bool_compare_and_swap(&israeli_locks[i].active, 0, 1)) {
+  for (int i = 0; i < MAX_ILOCKS; i++)
+  {
+    if (__sync_bool_compare_and_swap(&israeli_locks[i].active, 0, 1))
+    {
       israeli_locks[i].favoritism = favoritism;
       israeli_locks[i].locked = 0;
       israeli_locks[i].q_size = 0;
@@ -178,104 +190,122 @@ uint64 sys_israeli_create(void) {
   return -1; // לא נשארו מנעולים פנויים
 }
 
-uint64 sys_israeli_destroy(void) {
+uint64 sys_israeli_destroy(void)
+{
   int lock_id;
   argint(0, &lock_id);
-  
-  if(lock_id < 0 || lock_id >= MAX_ILOCKS)
+
+  if (lock_id < 0 || lock_id >= MAX_ILOCKS)
     return -1;
 
   israeli_locks[lock_id].active = 0;
   return 0;
 }
 
-uint64 sys_israeli_acquire(void) {
+uint64 sys_israeli_acquire(void)
+{
   int lock_id;
   argint(0, &lock_id); // שולפים את הארגומנט בנפרד
 
-  if(lock_id < 0 || lock_id >= MAX_ILOCKS)
+  if (lock_id < 0 || lock_id >= MAX_ILOCKS)
     return -1;
 
   struct israeli_lock *lk = &israeli_locks[lock_id];
-  if(lk->active == 0) return -1;
+  if (lk->active == 0)
+    return -1;
 
   struct proc *p = myproc();
 
   // 1. כניסה מאובטחת לתור
-  while(__sync_lock_test_and_set(&lk->guard, 1) != 0);
-  
-  if(lk->q_size >= MAX_QUEUE) {
+  while (__sync_lock_test_and_set(&lk->guard, 1) != 0)
+    ;
+
+  if (lk->q_size >= MAX_QUEUE)
+  {
     __sync_lock_release(&lk->guard);
     return -1; // התור מלא
   }
-  
+
   lk->queue[lk->q_size] = p->pid;
-  lk->queue_gid[lk->q_size] = p->gid; 
+  lk->queue_gid[lk->q_size] = p->gid;
   lk->q_size++;
-  
+
   __sync_lock_release(&lk->guard);
 
   // 2. המתנה עד שנהיה ראשונים בתור
-  while(1) {
-    while(__sync_lock_test_and_set(&lk->guard, 1) != 0);
+  while (1)
+  {
+    while (__sync_lock_test_and_set(&lk->guard, 1) != 0)
+      ;
 
-    if(lk->locked == 0 && lk->queue[0] == p->pid) {
+    if (lk->locked == 0 && lk->queue[0] == p->pid)
+    {
       // תורנו!
       lk->locked = 1;
       lk->owner_gid = p->gid;
 
       // מסירים מהתור
-      for(int i = 0; i < lk->q_size - 1; i++) {
-        lk->queue[i] = lk->queue[i+1];
-        lk->queue_gid[i] = lk->queue_gid[i+1];
+      for (int i = 0; i < lk->q_size - 1; i++)
+      {
+        lk->queue[i] = lk->queue[i + 1];
+        lk->queue_gid[i] = lk->queue_gid[i + 1];
       }
       lk->q_size--;
 
       __sync_lock_release(&lk->guard);
-      return 0; 
+      return 0;
     }
 
     __sync_lock_release(&lk->guard);
-    
+
     yield(); // ויתור על המעבד
   }
 }
 
-uint64 sys_israeli_release(void) {
+uint64 sys_israeli_release(void)
+{
   int lock_id;
   argint(0, &lock_id); // שולפים את הארגומנט בנפרד
 
-  if(lock_id < 0 || lock_id >= MAX_ILOCKS)
+  if (lock_id < 0 || lock_id >= MAX_ILOCKS)
     return -1;
 
   struct israeli_lock *lk = &israeli_locks[lock_id];
-  if(lk->active == 0) return -1;
+  if (lk->active == 0)
+    return -1;
 
-  while(__sync_lock_test_and_set(&lk->guard, 1) != 0);
+  while (__sync_lock_test_and_set(&lk->guard, 1) != 0)
+    ;
 
   lk->locked = 0; // משחררים את המנעול
 
   // לוגיקת הפרוטקציות
-  if(lk->q_size > 0) {
+  if (lk->q_size > 0)
+  {
     int friend_index = -1;
 
-    for(int i = 0; i < lk->q_size; i++) {
-      if(lk->queue_gid[i] == lk->owner_gid) {
+    for (int i = 0; i < lk->q_size; i++)
+    {
+      if (lk->queue_gid[i] == lk->owner_gid)
+      {
         friend_index = i;
         break;
       }
     }
 
-    if(friend_index != -1) {
-      uint rand_val = lcg_rand() % 100; 
-      if(rand_val < (uint)lk->favoritism) {
+    if (friend_index != -1)
+    {
+      uint rand_val = lcg_rand() % 100;
+      if (rand_val < (uint)lk->favoritism)
+      {
         // מזיזים את החבר לתחילת התור
         int temp_pid = lk->queue[friend_index];
         int temp_gid = lk->queue_gid[friend_index];
 
-        for(int i = friend_index; i > 0; i--) {
-          lk->queue[i] = lk->queue[i-1];
-          lk->queue_gid[i] = lk->queue_gid[i-1];
+        for (int i = friend_index; i > 0; i--)
+        {
+          lk->queue[i] = lk->queue[i - 1];
+          lk->queue_gid[i] = lk->queue_gid[i - 1];
         }
 
         lk->queue[0] = temp_pid;
@@ -291,38 +321,60 @@ uint64 sys_israeli_release(void) {
 // Task 2: Team Scores for Relay Race
 #define NUM_TEAMS 10
 int team_scores[NUM_TEAMS];
+int leading_score;
 struct spinlock scores_lock;
 
 // פונקציית אתחול - נקרא לה בעליית המערכת
-void scores_init(void) {
+void scores_init(void)
+{
   initlock(&scores_lock, "scores_lock");
-  for(int i = 0; i < NUM_TEAMS; i++) {
+  for (int i = 0; i < NUM_TEAMS; i++)
+  {
     team_scores[i] = 0;
   }
+  leading_score = 0;
 }
 
-uint64 sys_inc_score(void) {
+uint64 sys_inc_score(void)
+{
   int team_id;
   argint(0, &team_id);
-  
-  if(team_id < 0 || team_id >= NUM_TEAMS) return -1;
-  
+
+  if (team_id < 0 || team_id >= NUM_TEAMS)
+    return -1;
+
   acquire(&scores_lock);
   team_scores[team_id]++;
+  if (team_scores[team_id] > leading_score)
+  {
+    leading_score = team_scores[team_id];
+  }
+
   release(&scores_lock);
-  
+
   return 0;
 }
 
-uint64 sys_get_score(void) {
+uint64 sys_get_score(void)
+{
   int team_id;
   argint(0, &team_id);
-  
-  if(team_id < 0 || team_id >= NUM_TEAMS) return -1;
-  
+
+  if (team_id < 0 || team_id >= NUM_TEAMS)
+    return -1;
+
   acquire(&scores_lock);
   int score = team_scores[team_id];
   release(&scores_lock);
-  
+
+  return score;
+}
+
+uint64 sys_get_leading_score(void)
+{
+  acquire(&scores_lock);
+  int score = leading_score;
+  release(&scores_lock);
+
   return score;
 }
