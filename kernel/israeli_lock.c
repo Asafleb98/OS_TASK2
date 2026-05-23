@@ -88,19 +88,19 @@ int israeli_destroy(int lock_id) {
 
   acquire_internal(&lk->guard);
 
-  // המנעול לא קיים / כבר נהרס
+  // Lock doesn't exist or was already destroyed
   if (lk->active == 0) {
     release_internal(&lk->guard);
     return -1;
   }
 
-  // אם מישהו מחזיק את המנעול או מחכה בתור - לא הורסים
+  // Refuse to destroy a lock that is currently held or has waiters in the queue
   if (lk->locked != 0 || lk->q_size > 0) {
     release_internal(&lk->guard);
     return -1;
   }
 
-  // הכל פנוי - אפשר להרוס בבטחה
+  // Safe to destroy: free slot for future reuse
   lk->active = 0;
   release_internal(&lk->guard);
   return 0;
