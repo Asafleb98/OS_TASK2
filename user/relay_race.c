@@ -11,7 +11,7 @@
 
 #define TEAMS            3
 #define RUNNERS_PER_TEAM 5
-#define TARGET_SCORE     8
+#define TARGET_SCORE     30
 
 int main(int argc, char *argv[])
 {
