@@ -107,6 +107,8 @@ int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
 int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);
 void            procdump(void);
 void            lcg_init(void);
+uint            lcg_rand(void);
+int             get_gid_by_pid(int);
 //Task 2
 void            scores_init(void);
 
@@ -190,3 +192,16 @@ void            virtio_disk_intr(void);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
+
+// israeli_lock.c
+void            israeli_init(void);
+int             israeli_create(int);
+int             israeli_destroy(int);
+int             israeli_acquire(int);
+int             israeli_release(int);
+
+void            scores_init(void);
+int             scores_nullify(void);
+int             inc_score(int);
+int             get_score(int);
+int             get_leading_score(void);

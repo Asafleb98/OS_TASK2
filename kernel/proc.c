@@ -682,3 +682,22 @@ procdump(void)
     printf("\n");
   }
 }
+
+// Return the GID of a given PID. Returns -1 if not found.
+int
+get_gid_by_pid(int pid)
+{
+  struct proc *p;
+  int gid = -1;
+  
+  for(p = proc; p < &proc[NPROC]; p++){
+    acquire(&p->lock);
+    if(p->pid == pid){
+      gid = p->gid;
+      release(&p->lock);
+      break;
+    }
+    release(&p->lock);
+  }
+  return gid;
+}

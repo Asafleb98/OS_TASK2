@@ -22,6 +22,7 @@ main()
     procinit();      // process table
     //Task 1
     lcg_init();      // initialize LCG random lock
+    israeli_init(); //initialize the israeli lock
     //Task 2
     scores_init();   // initialize relay race scores
     trapinit();      // trap vectors
