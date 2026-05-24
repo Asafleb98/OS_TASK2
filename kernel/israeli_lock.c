@@ -10,31 +10,27 @@
 extern uint lcg_rand(void);         // From Task 0 (in sysproc.c)
 extern int get_gid_by_pid(int pid); // From proc.c helper
 
-// ==========================================
 // Task 1: The Israeli Lock Data Structure
-// ==========================================
 #define MAX_ILOCKS 15
 #define MAX_QUEUE  16
 
 struct israeli_lock {
   int  active;              // 0 if free, 1 if created and in use
   int  locked;              // 0 if available, 1 if currently held
-  int  favoritism;          // Favoritism coefficient (0-100)
-  int  owner_gid;           // GID of the process currently holding the lock
+  int  favoritism;          
+  int  owner_gid;           
 
-  int  queue[MAX_QUEUE];    // Circular buffer of waiting PIDs
-  int  q_head;              // Index of the head of the queue
-  int  q_size;              // Number of processes currently in the queue
+  int  queue[MAX_QUEUE];    // Circular buffer
+  int  q_head;              
+  int  q_size;              
 
-  uint guard;               // Atomic guard for internal synchronization
+  uint guard;               
 };
 
 // Global array of locks
 static struct israeli_lock ilocks[MAX_ILOCKS];
 
-// ==========================================
 // Internal concurrency helpers
-// ==========================================
 static void acquire_internal(uint *lk) {
   while (__sync_lock_test_and_set(lk, 1) != 0)
     ;
@@ -46,9 +42,7 @@ static void release_internal(uint *lk) {
   __sync_lock_release(lk);
 }
 
-// ==========================================
 // Initialization
-// ==========================================
 void israeli_init(void) {
   for (int i = 0; i < MAX_ILOCKS; i++) {
     ilocks[i].active = 0;
@@ -56,9 +50,7 @@ void israeli_init(void) {
   }
 }
 
-// ==========================================
-// Core kernel functions (callable from anywhere in the kernel)
-// ==========================================
+// Core kernel functions
 int israeli_create(int favoritism) {
   if (favoritism < 0 || favoritism > 100)
     return -1;
@@ -190,14 +182,14 @@ int israeli_release(int lock_id) {
 
     int target_idx = lk->q_head; // Default to FIFO
 
-    // Step 2: probability check
+    // probability check
     if (first_match_idx != -1) {
       if ((lcg_rand() % 100) < (uint)c) {
         target_idx = first_match_idx;
       }
     }
 
-    // Step 3: if favored, shift it to the front while preserving order of the rest
+    // if favored, shift it to the front while preserving order of the rest
     if (target_idx != lk->q_head) {
       int favored_pid = lk->queue[target_idx];
       int curr = target_idx;
@@ -215,9 +207,7 @@ int israeli_release(int lock_id) {
   return 0;
 }
 
-// ==========================================
 // Task 2: Team Scores for Relay Race
-// ==========================================
 #define NUM_TEAMS 10
 
 static int team_scores[NUM_TEAMS];

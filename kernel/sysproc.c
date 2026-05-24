@@ -6,9 +6,7 @@
 #include "spinlock.h"
 #include "proc.h"
 
-// ==========================================
 // Task 0: Pseudo-Random Number Generator (LCG)
-// ==========================================
 static uint random_state = 1;
 static struct spinlock random_lock;
 
@@ -32,9 +30,7 @@ uint lcg_rand(void) {
   return result;
 }
 
-// ==========================================
 // Standard xv6 system calls
-// ==========================================
 uint64
 sys_exit(void)
 {
@@ -116,9 +112,7 @@ sys_uptime(void)
   return xticks;
 }
 
-// ==========================================
 // Task 0 syscall wrappers (LCG)
-// ==========================================
 uint64
 sys_lcg_srand(void)
 {
@@ -134,9 +128,7 @@ sys_lcg_rand(void)
   return lcg_rand();
 }
 
-// ==========================================
 // Task 1 syscall wrappers (GID + Israeli Lock)
-// ==========================================
 uint64
 sys_setgid(void)
 {
@@ -184,9 +176,7 @@ sys_israeli_release(void)
   return israeli_release(lock_id);
 }
 
-// ==========================================
-// Task 2 syscall wrappers (Race / Scores)
-// ==========================================
+// Task 2 syscall wrappers 
 uint64
 sys_scores_nullify(void)
 {
